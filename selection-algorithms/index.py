@@ -8,34 +8,34 @@ targets = ['BIS attentional', 'BIS motor',	'BIS nonplanning',
 df = pd.read_csv("./teste/Group1_BancoTCE_24h_FUP_Impulsividade.csv")
 X = df.drop(columns=targets)
 X_cols = X.columns
-# for target in targets:
-select_target = targets[1]
 
-featureSelection = FeatureSelection(df, targets, num_feats, select_target)
-person_correlation = featureSelection.person_correlation()
-chi_squared = featureSelection.chi_squared()
-recursive_feature_elimination = featureSelection.recursive_feature_elimination()
-lasso = featureSelection.lasso()
-random_forest = featureSelection.random_forest()
 
-pd.set_option('display.max_rows', None)
-# put all selection together
-feature_selection_df = pd.DataFrame({
-    'Feature': X_cols,
-    'Pearson': person_correlation,
-    'Chi-2': chi_squared,
-    'RFE': recursive_feature_elimination,
-    'Lasso': lasso,
-    'Random Forest': random_forest,
-    # 'LightGBM': embeded_lgb_support - não rodou
-})
-# count the selected times for each feature
-feature_selection_df['Total'] = np.sum(feature_selection_df, axis=1)
-# display the top 100
-feature_selection_df = feature_selection_df.sort_values(
-    ['Total', 'Feature'], ascending=False)
-feature_selection_df.index = range(1, len(feature_selection_df)+1)
+for target in targets:
+    select_target = target
 
-print(feature_selection_df)
+    featureSelection = FeatureSelection(df, targets, num_feats, select_target)
+    person_correlation = featureSelection.person_correlation()
+    chi_squared = featureSelection.chi_squared()
+    recursive_feature_elimination = featureSelection.recursive_feature_elimination()
+    lasso = featureSelection.lasso()
+    random_forest = featureSelection.random_forest()
 
-# # Verificar o total
+    pd.set_option('display.max_rows', None)
+    # put all selection together
+    feature_selection_df = pd.DataFrame({
+        'Feature': X_cols,
+        'Pearson': person_correlation,
+        'Chi-2': chi_squared,
+        'RFE': recursive_feature_elimination,
+        'Lasso': lasso,
+        'Random Forest': random_forest,
+        # 'LightGBM': embeded_lgb_support - não rodou
+    })
+    # count the selected times for each feature
+    feature_selection_df['Total'] = np.sum(feature_selection_df, axis=1)
+    # display the top 100
+    feature_selection_df = feature_selection_df.sort_values(
+        ['Total', 'Feature'], ascending=False)
+    feature_selection_df.index = range(1, len(feature_selection_df)+1)
+
+    print(feature_selection_df)
