@@ -1,9 +1,9 @@
 import numpy as np
 
 from sklearn.feature_selection import SelectFromModel, SelectKBest, chi2, RFE
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import Lasso, LinearRegression
 
 
 # SEED = 15452
@@ -24,17 +24,16 @@ class FeatureSelection:
     def random_forest(self):
 
         embeded_rf_selector = SelectFromModel(
-            RandomForestClassifier(n_estimators=100), max_features=self.num_feats)
+            RandomForestRegressor(n_estimators=100), max_features=self.num_feats)
         embeded_rf_selector.fit(self.X, self.target)
 
-        # Quando tem support qui eu uso o feat ou o support?
         embeded_rf_support = embeded_rf_selector.get_support()
         embeded_rf_feature = self.X.loc[:, embeded_rf_support].columns.tolist()
         # print(str(len(embeded_rf_feature)),
         # 'selected features to', self.select_target)
-        # print(embeded_rf_feature, '\n\n')
+        print(embeded_rf_support, '\n\n')
 
-        return embeded_rf_feature
+        return embeded_rf_support
 
     def person_correlation(self):
         feat_list = []
@@ -52,11 +51,12 @@ class FeatureSelection:
         feat_support = [
             True if i in feat_feature else False for i in feature_name]
 
-        # print(str(len(feat_feature)),
-        # 'selected features to', self.select_target)
-        # print(feat_feature, '\n\n')
+        print(str(len(feat_feature)),
+              'selected features to', self.select_target)
+        print(feat_feature, '\n\n')
+        print(feat_support, '\n\n')
 
-        return feat_feature
+        return feat_support
 
     def chi_squared(self):
         X_norm = MinMaxScaler().fit_transform(self.X)
@@ -68,10 +68,10 @@ class FeatureSelection:
         # 'selected features to', self.select_target)
         # print(chi_feature, '\n\n')
 
-        return chi_feature
+        return chi_support
 
     def recursive_feature_elimination(self):
-        rfe_selector = RFE(estimator=LogisticRegression(),
+        rfe_selector = RFE(estimator=LinearRegression(),
                            n_features_to_select=self.num_feats, step=10, verbose=5)
         X_norm = MinMaxScaler().fit_transform(self.X)
         rfe_selector.fit(X_norm, self.target)
@@ -82,19 +82,20 @@ class FeatureSelection:
         # 'selected features to', self.select_target)
         # print(rfe_feature, '\n\n')
 
-        return rfe_feature
+        return rfe_support
 
     def lasso(self):
         X_norm = MinMaxScaler().fit_transform(self.X)
 
-        embeded_lr_selector = SelectFromModel(LogisticRegression(
-            penalty="l2"), max_features=self.num_feats)  # no tutorial era l1
+        embeded_lr_selector = SelectFromModel(
+            Lasso(), max_features=self.num_feats)
         embeded_lr_selector.fit(X_norm, self.target)
 
         embeded_lr_support = embeded_lr_selector.get_support()
         embeded_lr_feature = self.X.loc[:, embeded_lr_support].columns.tolist()
-        # print(str(len(embeded_lr_feature)),
-        # 'selected features to', self.select_target)
-        # print(embeded_lr_feature, '\n\n')
+        print(str(len(embeded_lr_feature)),
+              'selected features to', self.select_target)
+        print(embeded_lr_feature, '\n\n')
+        print(embeded_lr_support, '\n\n')
 
-        return embeded_lr_feature
+        return embeded_lr_support
